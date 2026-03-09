@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/">🚀 TaskManager MVP</a>
+            <div class="navbar-nav">
+                <a class="nav-link" th:href="@{/admin/dashboard}">Admin Panel</a>
+                <a class="nav-link" th:href="@{/user/dashboard}">User View</a>
+            </div>
+        </div>
+    </nav>
+    <title>Admin Dashboard - Task Scheduler</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <style>
+        /* Custom class taaki laal background ke upar text saaf dikhe */
+        .high-priority-cell {
+            background-color: #f8d7da !important;
+        }
+    </style>
+</head>
+
+<body class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="">Admin Task Management</h2>
+        <div>
+            <a th:href="@{/admin/process}" class="btn btn-warning shadow-sm">⚡ Process Next Task</a>
+            <a href="/admin/api/jobs/add" class="btn btn-primary shadow-sm">+ Add New Job</a>
+        </div>
+    </div>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit"
+            style="background-color: #ff4d4d; color: white; border: none; padding: 10px; cursor: pointer;">
+            Logout
+        </button>
+    </form>
+    <table class="table table-hover table-bordered shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th class="text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="job : ${jobs}">
+                <td th:text="${job.id}"></td>
+                <td th:text="${job.title}"></td>
+                <td th:text="${job.description}"></td>
+
+                <td th:classappend="${job.priority <= 3} ? 'high-priority-cell' : ''">
+                    <span class="badge rounded-pill" th:classappend="${job.priority <= 3} ? 'bg-danger' : 'bg-primary'"
+                        th:text="${job.priority}">
+                    </span>
+                </td>
+
+                <td>
+                    <span class="badge"
+                        th:classappend="${job.status.name() == 'RUNNING' || job.status.name() == 'IN_PROGRESS'} ? 'bg-info text-dark' : 'bg-secondary'"
+                        th:text="${job.status}">
+                    </span>
+                </td>
+
+                <td class="text-center">
+                    <a th:if="${job.status.name() == 'RUNNING'}" th:href="@{'/admin/complete/' + ${job.id}}"
+                        class="btn btn-sm btn-success shadow-sm px-3">
+                        Done ✅
+                    </a>
+                    <a th:if="${job.status.name() == 'COMPLETED'}" th:href="@{'/admin/delete-job/' + ${job.id}}"
+                        class="btn btn-sm btn-outline-danger shadow-sm">
+                        🗑️ Remove
+                    </a>
+                    <span th:if="${job.status.name() == 'COMPLETED'}" class="text-success fw-bold">Finished</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${#lists.isEmpty(jobs)}" class="alert alert-info text-center">
+        No tasks available. Click '+ Add New Job' to start.
+    </div>
+</body>
+
+</html>
